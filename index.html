@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giao diện kết nối Backend Python</title>
+    <style>
+        :root { --primary: #00d2ff; --secondary: #3a7bd5; }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #16213e; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 400px; text-align: center; border: 1px solid #0f3460; }
+        h1 { color: var(--primary); margin-bottom: 1.5rem; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #0f3460; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border-radius: 8px; border: none; background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px;}
+        button:hover { transform: translateY(-2px); opacity: 0.9; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 8px; background: #0f3460; display: none; text-align: left; border-left: 4px solid var(--primary); }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Frontend Siêu Cấp</h1>
+        <p>Gửi dữ liệu tới bộ não Python trên mây</p>
+        
+        <input type="number" id="soA" placeholder="Nhập số thứ nhất">
+        <input type="number" id="soB" placeholder="Nhập số thứ hai">
+        
+        <button onclick="goiBackend()">Bắn dữ liệu đi!</button>
+        <button onclick="goiTuDongHoa()" style="background: linear-gradient(to right, #f12711, #f5af19);">Thử API Tự động hóa</button>
+
+        <div id="result">
+            <small style="color: #888;">Phản hồi từ Server:</small>
+            <p id="message" style="margin: 5px 0 0 0;"></p>
+        </div>
+    </div>
+
+    <script>
+        // CẬU CHỈ CẦN THAY ĐƯỜNG DẪN RENDER VÀO GIỮA 2 DẤU NGOẶC KÉP NÀY LÀ XONG
+        const URL_CUA_CAU = "https://a-l5ce.onrender.com"; 
+
+        async function goiBackend() {
+            const a = document.getElementById('soA').value || 0;
+            const b = document.getElementById('soB').value || 0;
+            hienThiTrangThai('Đang gọi API Tính toán...');
+
+            try {
+                const response = await fetch(`${URL_CUA_CAU}/api/tinh-toan?so_a=${a}&so_b=${b}`);
+                const data = await response.json();
+                document.getElementById('message').innerText = data.message;
+            } catch (error) {
+                document.getElementById('message').innerText = 'Lỗi rồi! Máy chủ ngủ quên chưa dậy hoặc sai URL.';
+            }
+        }
+
+        async function goiTuDongHoa() {
+            hienThiTrangThai('Đang gọi API Tự động hóa...');
+            try {
+                const response = await fetch(`${URL_CUA_CAU}/api/tao-hop-dong?ten_doi_tac=VIP_PRO`);
+                const data = await response.json();
+                document.getElementById('message').innerText = data.message;
+            } catch (error) {
+                document.getElementById('message').innerText = 'Lỗi kết nối!';
+            }
+        }
+
+        function hienThiTrangThai(msg) {
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('message').innerText = msg;
+        }
+    </script>
+</body>
+</html>
