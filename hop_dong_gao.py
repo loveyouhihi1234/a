@@ -20,6 +20,8 @@ auto_install_vukhi('docxcompose')
 # Sau khi đảm bảo đã có đủ vũ khí, mới gọi các thư viện ra làm việc
 import pandas as pd
 from docxtpl import DocxTemplate
+from docx import Document
+from docxcompose.composer import Composer
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
@@ -156,6 +158,9 @@ def tao_hop_dong_gom_nhom():
     print("🚀 Bắt đầu tạo hàng loạt hợp đồng...\n")
 
     nhom_hop_dong = df.groupby('sohd')
+    
+    # BIẾN MỚI: Danh sách để lưu lại đường dẫn của các file Word con vừa sinh ra
+    danh_sach_file_da_tao = []
 
     for sohd, group in nhom_hop_dong:
         doc = DocxTemplate(WORD_TEMPLATE)
@@ -165,6 +170,11 @@ def tao_hop_dong_gom_nhom():
         ngay = str(first_row['ngay']).replace('.0', '').zfill(2)
         thang = str(first_row['thang']).replace('.0', '').zfill(2)
         nam = str(first_row['nam']).replace('.0', '')
+        
+        # --- CỖ MÁY TÍNH TOÁN KẾ TOÁN ---
+        # Tính TỔNG tiền thuế và TỔNG tiền thanh toán cho toàn bộ mặt hàng trong hợp đồng này
+        tong_thue_hop_dong = group['thue'].sum(skipna=True)
+        tong_tien_hop_dong = group['tongtien'].sum(skipna=True)
         
         # --- CỖ MÁY THỜI GIAN ---
         try:
@@ -231,13 +241,15 @@ def tao_hop_dong_gom_nhom():
         thue_row[0].merge(thue_row[3]) 
         thue_txt = f"Thuế Suất GTGT: {first_row['thuesuat'] if pd.notna(first_row['thuesuat']) else ''}"
         format_cell(thue_row[0], thue_txt, bold=True, align='center')
-        format_cell(thue_row[4], format_number(first_row['thue']), bold=True, align='right') 
+        # Gắn TỔNG thuế của toàn bộ các mặt hàng
+        format_cell(thue_row[4], format_number(tong_thue_hop_dong), bold=True, align='right') 
         
         # Dòng: Tổng tiền thanh toán 
         tong_row = bang.rows[so_mat_hang + 2].cells
         tong_row[0].merge(tong_row[3])
         format_cell(tong_row[0], "Tổng tiền thanh toán", bold=True, align='center')
-        format_cell(tong_row[4], format_number(first_row['tongtien']), bold=True, align='right') 
+        # Gắn TỔNG tiền thanh toán của toàn bộ các mặt hàng
+        format_cell(tong_row[4], format_number(tong_tien_hop_dong), bold=True, align='right') 
         # =================================================================
             
         context = {
@@ -265,12 +277,38 @@ def tao_hop_dong_gom_nhom():
         try:
             doc.render(context)
             doc.save(output_path)
-            print(f"✅ Đã xuất xưởng thành công rực rỡ: {file_name} (Gồm {so_mat_hang} mặt hàng)")
+            # Lưu lại đường dẫn để lát nữa "khâu" chúng nó lại
+            danh_sach_file_da_tao.append(output_path) 
+            print(f"✅ Đã xuất xưởng: {file_name} (Gồm {so_mat_hang} mặt hàng)")
         except Exception as e:
             print(f"❌ Lỗi ngoài ý muốn: {e}")
             return
 
-    print(f"\n🎉 XONG! Cậu mở '{output_dir}' ra check thành quả nhé!")
+    # =================================================================
+    # TUYỆT KỸ CUỐI CÙNG: KHÂU TẤT CẢ FILE LẺ THÀNH MASTER FILE
+    # =================================================================
+    if danh_sach_file_da_tao:
+        print("\n🔄 Đang tiến hành thuật toán gộp tất cả thành 1 file Tổng (Master File)...")
+        
+        # Lấy file đầu tiên làm "xương sống"
+        master_doc = Document(danh_sach_file_da_tao[0])
+        composer = Composer(master_doc)
+        
+        # Đắp lần lượt các file còn lại vào xương sống
+        for file_path in danh_sach_file_da_tao[1:]:
+            # Ngắt trang để mỗi hợp đồng nằm trọn vẹn ở một trang mới
+            master_doc.add_page_break()
+            doc_to_append = Document(file_path)
+            composer.append(doc_to_append)
+            
+        # Đặt tên và lưu Master File
+        master_file_name = f"HOP_DONG_GAO_TU_{sohd_dau}_DEN_{sohd_cuoi}.docx"
+        master_file_path = os.path.join(output_dir, master_file_name)
+        composer.save(master_file_path)
+        
+        print(f"🌟 BÙM! Đã đúc thành công bảo kiếm: {master_file_name}")
+
+    print(f"\n🎉 XONG! Cậu mở '{output_dir}' ra xem thử Master File chuẩn bị đi in nhé!")
 
 if __name__ == "__main__":
     tao_hop_dong_gom_nhom()
