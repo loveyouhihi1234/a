@@ -40,8 +40,8 @@ from docx.oxml.ns import qn
 # =====================================================================
 # CẤU HÌNH ĐƯỜNG DẪN FILE
 # =====================================================================
-DATA_FILE = 'thong_tin.xlsx'
-WORD_TEMPLATE = 'mau_hop_dong_xe_tai.docx'
+DATA_FILE = '2_thong_tin.xlsx'
+WORD_TEMPLATE = '2_mau_hop_dong_xe_tai.docx'
 OUTPUT_DIR = ''
 
 # =====================================================================
