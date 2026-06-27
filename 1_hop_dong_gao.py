@@ -45,8 +45,8 @@ from docx.oxml.ns import qn
 #    Từ ngày {{ ngay }}/{{ thang }} đến hết ngày {{ giaohang }}/{{ thanggiaohang }}/{{ namgiaohang }}
 # =====================================================================
 
-EXCEL_FILE = 'thong_tin_hop_dong_gao.xlsx'  
-WORD_TEMPLATE = 'mau_hop_dong_gao.docx' 
+EXCEL_FILE = '1_thong_tin_hop_dong_gao.xlsx'  
+WORD_TEMPLATE = '1_mau_hop_dong_gao.docx' 
 OUTPUT_DIR = ''
 
 def format_number(val):
