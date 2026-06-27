@@ -171,9 +171,9 @@ def generate_documents(excel_path, hdnt_template_path, bbgn_template_path, outpu
     print("🎉 Boom! Đã hoàn thiện: Bảng Times New Roman, Size 12, Dãn dòng 1.3.")
 
 if __name__ == '__main__':
-    EXCEL_FILE = 'danh_sach_hoa_don.xlsx'          
-    TEMPLATE_HDNT = 'mau_hopdongnguyentac.docx'    
-    TEMPLATE_BBGN = 'mau_bienbangiaonhan.docx'     
+    EXCEL_FILE = '3_danh_sach_hoa_don.xlsx'          
+    TEMPLATE_HDNT = '3_mau_hopdongnguyentac.docx'    
+    TEMPLATE_BBGN = '3_mau_bienbangiaonhan.docx'     
     OUTPUT_DIR = 'Xuat_File_Tu_Dong'               
     
     generate_documents(EXCEL_FILE, TEMPLATE_HDNT, TEMPLATE_BBGN, OUTPUT_DIR)
