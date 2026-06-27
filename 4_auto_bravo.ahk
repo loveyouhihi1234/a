@@ -24,10 +24,10 @@ return
 ; BẤM F8 -> HIỆN BẢNG CẤU HÌNH PRO VIP
 ; ====================================================================
 F8::
-FilePath := A_ScriptDir . "\data_hoadon.xlsx"
+FilePath := A_ScriptDir . "\4_data_hoadon.xlsx"
 
 if !FileExist(FilePath) {
-    MsgBox, 16, Lỗi, Không tìm thấy file data_hoadon.xlsx ở cùng thư mục!
+    MsgBox, 16, Lỗi, Không tìm thấy file 4_data_hoadon.xlsx ở cùng thư mục!
     return
 }
 
