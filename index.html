@@ -287,8 +287,8 @@
             <div class="download-section">
                 <h3>📥 Kho File Mẫu Chuẩn Cho Hệ Thống</h3>
                 <p style="color: var(--text-muted); font-size: 10pt; margin-top: -5px;">Tải về để nhập liệu nếu cậu chưa có file sẵn nhé</p>
-                <a href="2_thong_tin.xlsx" download class="btn-download">📊 Tải file dữ liệu (2_thong_tin.xlsx)</a>
-                <a href="2_mau_hop_dong_xe_tai.docx" download class="btn-download">📝 Tải mẫu Word (2_mau_hop_dong_xe_tai.docx)</a>
+                <a href="thong_tin.xlsx" download class="btn-download">📊 Tải file dữ liệu (thong_tin.xlsx)</a>
+                <a href="mau_hop_dong_xe_tai.docx" download class="btn-download">📝 Tải mẫu Word (mau_hop_dong_xe_tai.docx)</a>
             </div>
 
             <div class="upload-grid">
@@ -321,8 +321,8 @@
             <div class="download-section">
                 <h3>📥 Kho File Mẫu Hợp Đồng Gạo</h3>
                 <p style="color: var(--text-muted); font-size: 10pt; margin-top: -5px;">Tải mẫu cấu trúc gom nhóm nhiều mặt hàng</p>
-                <a href="1_thong_tin_hop_dong_gao.xlsx" download class="btn-download">📊 Tải file dữ liệu gạo (1_thong_tin_hop_dong_gao.xlsx)</a>
-                <a href="1_mau_hop_dong_gao.docx" download class="btn-download">📝 Tải mẫu Word gạo (1_mau_hop_dong_gao.docx)</a>
+                <a href="thong_tin_hop_dong_gao.xlsx" download class="btn-download">📊 Tải file dữ liệu gạo (thong_tin_hop_dong_gao.xlsx)</a>
+                <a href="mau_hop_dong_gao.docx" download class="btn-download">📝 Tải mẫu Word gạo (mau_hop_dong_gao.docx)</a>
             </div>
 
             <div class="upload-grid">
@@ -435,8 +435,8 @@
             let excelInputId = type === 'xe-tai' ? 'excel-xt' : 'excel-gao';
             let wordInputId = type === 'xe-tai' ? 'word-xt' : 'word-gao';
             
-            let defaultExcelUrl = type === 'xe-tai' ? '2_thong_tin.xlsx' : '1_thong_tin_hop_dong_gao.xlsx';
-            let defaultWordUrl = type === 'xe-tai' ? '2_mau_hop_dong_xe_tai.docx' : '1_mau_hop_dong_gao.docx';
+            let defaultExcelUrl = type === 'xe-tai' ? 'thong_tin.xlsx' : 'thong_tin_hop_dong_gao.xlsx';
+            let defaultWordUrl = type === 'xe-tai' ? 'mau_hop_dong_xe_tai.docx' : 'mau_hop_dong_gao.docx';
             
             let endpoint = type === 'xe-tai' ? '/api/hop-dong-xe-tai' : '/api/hop-dong-gao';
             let zipName = type === 'xe-tai' ? 'KetQua_HopDongXeTai.zip' : 'KetQua_HopDongGao.zip';
