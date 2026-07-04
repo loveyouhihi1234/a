@@ -302,7 +302,7 @@ def tao_hop_dong_gom_nhom():
             composer.append(doc_to_append)
             
         # Đặt tên và lưu Master File
-        master_file_name = f"HOP_DONG_GAO_TU_{sohd_dau}_DEN_{sohd_cuoi}.docx"
+        master_file_name = f"MASTER_HOP_DONG_TONG_{sohd_dau}_Den_{sohd_cuoi}.docx"
         master_file_path = os.path.join(output_dir, master_file_name)
         composer.save(master_file_path)
         
