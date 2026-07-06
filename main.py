@@ -118,112 +118,7 @@ def read_root():
     return {"message": "Hệ thống Tự động hóa Hợp đồng đang bay mượt trên đám mây!"}
 
 # =====================================================================
-# API 1: HỢP ĐỒNG XE TẢI
-# =====================================================================
-def ke_vien_full(table):
-    tblPr = table._tbl.tblPr
-    tblBorders = tblPr.find(qn('w:tblBorders'))
-    if tblBorders is None:
-        tblBorders = OxmlElement('w:tblBorders')
-        tblPr.append(tblBorders)
-    else: tblBorders.clear()
-    for border_name in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
-        border = OxmlElement(f'w:{border_name}')
-        border.set(qn('w:val'), 'single')
-        border.set(qn('w:sz'), '4')
-        border.set(qn('w:space'), '0')
-        border.set(qn('w:color'), 'auto')
-        tblBorders.append(border)
-
-@app.post("/api/hop-dong-xe-tai")
-async def tao_hop_dong_xe_tai(excel_file: UploadFile = File(...), word_template: UploadFile = File(...)):
-    excel_data = await excel_file.read()
-    word_data = await word_template.read()
-    
-    df_raw = pd.read_excel(io.BytesIO(excel_data), engine='openpyxl', header=None)
-    
-    header_idx = -1
-    max_score = 0
-    keywords = ['so', 'stt', 'số', 'bks', 'biển', 'daidien', 'đại diện', 'xe', 'oto', 'ô tô', 'trongtai', 'tải', 'cmt', 'cccd', 'ngay', 'tien', 'tiền', 'thang', 'tháng', 'tong', 'tổng']
-    
-    for i, row in df_raw.iterrows():
-        row_text = " ".join([str(val).lower() for val in row.values if pd.notna(val)])
-        score = sum(1 for k in keywords if k in row_text)
-        if score > max_score:
-            max_score = score
-            header_idx = i
-
-    if max_score < 3: 
-        return {"error": "Không tìm thấy dòng tiêu đề hợp lệ."}
-    
-    df = df_raw.iloc[header_idx + 1:].reset_index(drop=True)
-    df.columns = df_raw.iloc[header_idx].astype(str).str.strip().str.lower()
-
-    with tempfile.TemporaryDirectory() as temp_dir:
-        for index, row in df.iterrows():
-            bks_raw = str(lay_gia_tri(row, ['bks', 'biển'])).strip()
-            daidien_raw = str(lay_gia_tri(row, ['daidien', 'đại diện', 'tên']))
-            if not bks_raw or bks_raw.lower() == 'nan': continue
-
-            doc = DocxTemplate(io.BytesIO(word_data))
-            
-            so_raw = lay_gia_tri(row, ['so', 'stt', 'số'])
-            try: so_str = str(int(float(so_raw))).zfill(2)
-            except: so_str = "00"
-
-            cmt = xu_ly_cmt_cccd(lay_gia_tri(row, ['cmt', 'cccd', 'cmnd']))
-            ngaycap = xu_ly_ngay_excel(lay_gia_tri(row, ['ngaycap', 'ngày cấp', 'capngay']))
-            trongtai = format_number(lay_gia_tri(row, ['trongtai', 'trọng tải', 'tải']))
-            tien_thang = format_number(lay_gia_tri(row, ['tien', 'tiền', 'giá']))
-            so_thang = format_number(lay_gia_tri(row, ['thang', 'tháng']))
-            tong_tien = format_number(lay_gia_tri(row, ['tong', 'tổng', 'thành']))
-
-            bang_subdoc = doc.new_subdoc()
-            bang = bang_subdoc.add_table(rows=3, cols=5)
-            ke_vien_full(bang)
-            autofit_to_window(bang)
-
-            hdr = bang.rows[0].cells
-            format_cell(hdr[0], 'Từ tháng', bold=True)
-            format_cell(hdr[1], 'Đến tháng', bold=True)
-            format_cell(hdr[2], 'Số tháng', bold=True)
-            format_cell(hdr[3], 'Giá trị thuê / tháng', bold=True)
-            format_cell(hdr[4], 'Thành tiền', bold=True)
-
-            r1 = bang.rows[1].cells
-            format_cell(r1[0], '01')
-            format_cell(r1[1], '12')
-            format_cell(r1[2], so_thang)
-            format_cell(r1[3], tien_thang, align='right')
-            format_cell(r1[4], tong_tien, align='right')
-
-            r2 = bang.rows[2].cells
-            r2[0].merge(r2[3])
-            format_cell(r2[0], 'Tổng cộng:', bold=True)
-            format_cell(r2[4], tong_tien, bold=True, align='right')
-
-            context = {
-                'so': so_str,
-                'daidien': daidien_raw if daidien_raw.lower() != 'nan' else "",
-                'diachi': str(lay_gia_tri(row, ['diachi', 'địa chỉ'])) if str(lay_gia_tri(row, ['diachi', 'địa chỉ'])).lower() != 'nan' else "",
-                'cmt': cmt,
-                'ngaycap': ngaycap,
-                'capngay': ngaycap,
-                'congan': str(lay_gia_tri(row, ['congan', 'công an', 'nơi'])) if str(lay_gia_tri(row, ['congan', 'công an', 'nơi'])).lower() != 'nan' else "",
-                'bks': bks_raw,
-                'oto': str(lay_gia_tri(row, ['oto', 'ô tô', 'loại'])) if str(lay_gia_tri(row, ['oto', 'ô tô', 'loại'])).lower() != 'nan' else "",
-                'trongtai': trongtai,
-                'bang_thanh_toan': bang_subdoc
-            }
-
-            file_name = f"{so_str}_{bks_raw}.docx"
-            doc.render(context)
-            doc.save(os.path.join(temp_dir, file_name))
-
-        return tao_file_zip(temp_dir, "HopDongXeTai_ThanhPham.zip")
-
-# =====================================================================
-# API 2: HỢP ĐỒNG GẠO ĐƠN THUẦN
+# API 1: HỢP ĐỒNG GẠO (PREFIX 1)
 # =====================================================================
 def ve_vien_ngang(table):
     tblPr = table._tbl.tblPr
@@ -332,15 +227,121 @@ async def tao_hop_dong_gao(excel_file: UploadFile = File(...), word_template: Up
                 'bang_hang_hoa': bang_subdoc
             }
 
-            file_name = f"{so_hd_str}. Hợp đồng gạo - {ngay}{thang}.docx"
+            file_name = f"1_{so_hd_str}. Hop_dong_gao_{ngay}{thang}.docx"
             doc.render(context)
             doc.save(os.path.join(temp_dir, file_name))
 
-        return tao_file_zip(temp_dir, "HopDongGao_ThanhPham.zip")
+        return tao_file_zip(temp_dir, "1_KetQua_HopDongGao.zip")
 
 
 # =====================================================================
-# API 3: HỢP ĐỒNG NGUYÊN TẮC GẠO (HDNT & BBGN) + ĐÓNG QUYỂN
+# API 2: HỢP ĐỒNG XE TẢI (PREFIX 2)
+# =====================================================================
+def ke_vien_full(table):
+    tblPr = table._tbl.tblPr
+    tblBorders = tblPr.find(qn('w:tblBorders'))
+    if tblBorders is None:
+        tblBorders = OxmlElement('w:tblBorders')
+        tblPr.append(tblBorders)
+    else: tblBorders.clear()
+    for border_name in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
+        border = OxmlElement(f'w:{border_name}')
+        border.set(qn('w:val'), 'single')
+        border.set(qn('w:sz'), '4')
+        border.set(qn('w:space'), '0')
+        border.set(qn('w:color'), 'auto')
+        tblBorders.append(border)
+
+@app.post("/api/hop-dong-xe-tai")
+async def tao_hop_dong_xe_tai(excel_file: UploadFile = File(...), word_template: UploadFile = File(...)):
+    excel_data = await excel_file.read()
+    word_data = await word_template.read()
+    
+    df_raw = pd.read_excel(io.BytesIO(excel_data), engine='openpyxl', header=None)
+    
+    header_idx = -1
+    max_score = 0
+    keywords = ['so', 'stt', 'số', 'bks', 'biển', 'daidien', 'đại diện', 'xe', 'oto', 'ô tô', 'trongtai', 'tải', 'cmt', 'cccd', 'ngay', 'tien', 'tiền', 'thang', 'tháng', 'tong', 'tổng']
+    
+    for i, row in df_raw.iterrows():
+        row_text = " ".join([str(val).lower() for val in row.values if pd.notna(val)])
+        score = sum(1 for k in keywords if k in row_text)
+        if score > max_score:
+            max_score = score
+            header_idx = i
+
+    if max_score < 3: 
+        return {"error": "Không tìm thấy dòng tiêu đề hợp lệ."}
+    
+    df = df_raw.iloc[header_idx + 1:].reset_index(drop=True)
+    df.columns = df_raw.iloc[header_idx].astype(str).str.strip().str.lower()
+
+    with tempfile.TemporaryDirectory() as temp_dir:
+        for index, row in df.iterrows():
+            bks_raw = str(lay_gia_tri(row, ['bks', 'biển'])).strip()
+            daidien_raw = str(lay_gia_tri(row, ['daidien', 'đại diện', 'tên']))
+            if not bks_raw or bks_raw.lower() == 'nan': continue
+
+            doc = DocxTemplate(io.BytesIO(word_data))
+            
+            so_raw = lay_gia_tri(row, ['so', 'stt', 'số'])
+            try: so_str = str(int(float(so_raw))).zfill(2)
+            except: so_str = "00"
+
+            cmt = xu_ly_cmt_cccd(lay_gia_tri(row, ['cmt', 'cccd', 'cmnd']))
+            ngaycap = xu_ly_ngay_excel(lay_gia_tri(row, ['ngaycap', 'ngày cấp', 'capngay']))
+            trongtai = format_number(lay_gia_tri(row, ['trongtai', 'trọng tải', 'tải']))
+            tien_thang = format_number(lay_gia_tri(row, ['tien', 'tiền', 'giá']))
+            so_thang = format_number(lay_gia_tri(row, ['thang', 'tháng']))
+            tong_tien = format_number(lay_gia_tri(row, ['tong', 'tổng', 'thành']))
+
+            bang_subdoc = doc.new_subdoc()
+            bang = bang_subdoc.add_table(rows=3, cols=5)
+            ke_vien_full(bang)
+            autofit_to_window(bang)
+
+            hdr = bang.rows[0].cells
+            format_cell(hdr[0], 'Từ tháng', bold=True)
+            format_cell(hdr[1], 'Đến tháng', bold=True)
+            format_cell(hdr[2], 'Số tháng', bold=True)
+            format_cell(hdr[3], 'Giá trị thuê / tháng', bold=True)
+            format_cell(hdr[4], 'Thành tiền', bold=True)
+
+            r1 = bang.rows[1].cells
+            format_cell(r1[0], '01')
+            format_cell(r1[1], '12')
+            format_cell(r1[2], so_thang)
+            format_cell(r1[3], tien_thang, align='right')
+            format_cell(r1[4], tong_tien, align='right')
+
+            r2 = bang.rows[2].cells
+            r2[0].merge(r2[3])
+            format_cell(r2[0], 'Tổng cộng:', bold=True)
+            format_cell(r2[4], tong_tien, bold=True, align='right')
+
+            context = {
+                'so': so_str,
+                'daidien': daidien_raw if daidien_raw.lower() != 'nan' else "",
+                'diachi': str(lay_gia_tri(row, ['diachi', 'địa chỉ'])) if str(lay_gia_tri(row, ['diachi', 'địa chỉ'])).lower() != 'nan' else "",
+                'cmt': cmt,
+                'ngaycap': ngaycap,
+                'capngay': ngaycap,
+                'congan': str(lay_gia_tri(row, ['congan', 'công an', 'nơi'])) if str(lay_gia_tri(row, ['congan', 'công an', 'nơi'])).lower() != 'nan' else "",
+                'bks': bks_raw,
+                'oto': str(lay_gia_tri(row, ['oto', 'ô tô', 'loại'])) if str(lay_gia_tri(row, ['oto', 'ô tô', 'loại'])).lower() != 'nan' else "",
+                'trongtai': trongtai,
+                'bang_thanh_toan': bang_subdoc
+            }
+
+            file_name = f"2_{so_str}_{bks_raw}.docx"
+            doc.render(context)
+            doc.save(os.path.join(temp_dir, file_name))
+
+        return tao_file_zip(temp_dir, "2_KetQua_HopDongXeTai.zip")
+
+
+# =====================================================================
+# API 3: HỢP ĐỒNG NGUYÊN TẮC GẠO (HDNT & BBGN) + ĐÓNG QUYỂN (PREFIX 3)
 # =====================================================================
 def style_cell_api3(cell, text, align_horz, is_bold=False):
     cell.text = str(text)
@@ -417,7 +418,7 @@ async def tao_hop_dong_nguyen_tac(
             
             ngaythang = f"{int(buyer_data['ngay']):02d}{int(buyer_data['thang']):02d}"
             safe_name = str(buyer_data['benmua']).replace('/', '_').replace('\\', '_').replace(':', '_')
-            out_name = f"HDNT_{hdnt_counter:02d}_{safe_name}_{ngaythang}.docx"
+            out_name = f"3_HDNT_{hdnt_counter:02d}_{safe_name}_{ngaythang}.docx"
             
             full_hdnt_path = os.path.join(hdnt_folder, out_name)
             doc.save(full_hdnt_path)
@@ -495,7 +496,7 @@ async def tao_hop_dong_nguyen_tac(
 
             ngaythang = f"{int(info['ngay']):02d}{int(info['thang']):02d}"
             safe_name = str(info['benmua']).replace('/', '_').replace('\\', '_').replace(':', '_')
-            out_bbgn_name = f"BBGN_HD{sohd}_{safe_name}_{ngaythang}.docx"
+            out_bbgn_name = f"3_BBGN_HD{sohd}_{safe_name}_{ngaythang}.docx"
             
             full_bbgn_path = os.path.join(bbgn_folder, out_bbgn_name)
             doc_bbgn.save(full_bbgn_path)
@@ -503,9 +504,9 @@ async def tao_hop_dong_nguyen_tac(
 
         # PHẦN 3: ĐÓNG QUYỂN
         if danh_sach_hdnt:
-            merge_docs(danh_sach_hdnt, os.path.join(temp_dir, '1_Tong_Hop_Hop_Dong_Nguyen_Tac.docx'))
+            merge_docs(danh_sach_hdnt, os.path.join(temp_dir, '3_Tong_Hop_Hop_Dong_Nguyen_Tac.docx'))
         if danh_sach_bbgn:
-            merge_docs(danh_sach_bbgn, os.path.join(temp_dir, '2_Tong_Hop_Bien_Ban_Giao_Nhan.docx'))
+            merge_docs(danh_sach_bbgn, os.path.join(temp_dir, '3_Tong_Hop_Bien_Ban_Giao_Nhan.docx'))
         
         danh_sach_tong_hop = danh_sach_hdnt + danh_sach_bbgn
         if danh_sach_tong_hop:
@@ -515,4 +516,4 @@ async def tao_hop_dong_nguyen_tac(
         os.remove(hdnt_path)
         os.remove(bbgn_path)
 
-        return tao_file_zip(temp_dir, "KetQua_HDNT_Gao.zip")
+        return tao_file_zip(temp_dir, "3_KetQua_HDNT_Gao.zip")
