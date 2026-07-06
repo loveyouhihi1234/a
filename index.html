@@ -280,12 +280,12 @@
         </header>
 
         <div class="tabs">
-            <div class="tab-btn" onclick="switchTab('gao')">🌾 Hợp Đồng Gạo (1)</div>
-            <div class="tab-btn active" onclick="switchTab('xe-tai')">🚚 Hợp Đồng Xe Tải (2)</div>
+            <div class="tab-btn active" onclick="switchTab('gao')">🌾 Hợp Đồng Gạo (1)</div>
+            <div class="tab-btn" onclick="switchTab('xe-tai')">🚚 Hợp Đồng Xe Tải (2)</div>
             <div class="tab-btn" onclick="switchTab('hdnt-gao')">📑 HĐ Nguyên Tắc Gạo (3)</div>
         </div>
 
-        <div id="tab-gao" class="tab-content">
+        <div id="tab-gao" class="tab-content active">
             <div class="download-section">
                 <h3>📥 Kho File Mẫu Hợp Đồng Gạo</h3>
                 <a href="1_thong_tin_hop_dong_gao.xlsx" download class="btn-download">📊 Tải file dữ liệu gạo (1)</a>
@@ -298,7 +298,7 @@
                         <label>
                             <span class="file-icon">📊</span>
                             <strong>File Excel Dữ Liệu Gạo</strong>
-                            <span class="file-name" id="name-excel-gao">Chưa chọn file (Sẽ dùng file mẫu)</span>
+                            <span class="file-name" id="name-excel-gao">Chưa chọn file</span>
                             <input type="file" id="excel-gao" accept=".xlsx, .xls" onchange="updateFileName('excel-gao', 'name-excel-gao')">
                         </label>
                     </div>
@@ -308,7 +308,7 @@
                         <label>
                             <span class="file-icon">📝</span>
                             <strong>File Mẫu Word Gạo</strong>
-                            <span class="file-name" id="name-word-gao">Chưa chọn file (Sẽ dùng file mẫu)</span>
+                            <span class="file-name" id="name-word-gao">Chưa chọn file</span>
                             <input type="file" id="word-gao" accept=".docx" onchange="updateFileName('word-gao', 'name-word-gao')">
                         </label>
                     </div>
@@ -317,7 +317,7 @@
             <button class="btn-run" onclick="chayDayChuyen('gao')" style="background: linear-gradient(to right, #f5af19, #f12711); box-shadow: 0 4px 15px rgba(245, 175, 25, 0.2);">🌾 Bắt Đầu Xử Lý Hợp Đồng Gạo</button>
         </div>
 
-        <div id="tab-xe-tai" class="tab-content active">
+        <div id="tab-xe-tai" class="tab-content">
             <div class="download-section">
                 <h3>📥 Kho File Mẫu Hợp Đồng Xe Tải</h3>
                 <a href="2_thong_tin.xlsx" download class="btn-download">📊 Tải file dữ liệu (2)</a>
@@ -330,7 +330,7 @@
                         <label>
                             <span class="file-icon">📊</span>
                             <strong>File Excel Thông Tin</strong>
-                            <span class="file-name" id="name-excel-xt">Chưa chọn file (Sẽ dùng file mẫu)</span>
+                            <span class="file-name" id="name-excel-xt">Chưa chọn file</span>
                             <input type="file" id="excel-xt" accept=".xlsx, .xls" onchange="updateFileName('excel-xt', 'name-excel-xt')">
                         </label>
                     </div>
@@ -340,7 +340,7 @@
                         <label>
                             <span class="file-icon">📝</span>
                             <strong>File Mẫu Word (.docx)</strong>
-                            <span class="file-name" id="name-word-xt">Chưa chọn file (Sẽ dùng file mẫu)</span>
+                            <span class="file-name" id="name-word-xt">Chưa chọn file</span>
                             <input type="file" id="word-xt" accept=".docx" onchange="updateFileName('word-xt', 'name-word-xt')">
                         </label>
                     </div>
@@ -402,13 +402,12 @@
 
         <div class="result-box" id="result-box">
             <h2 style="color: var(--success); margin-top: 0;">🎉 Xuất Bản Thành Công Rực Rỡ!</h2>
-            <p id="result-summary">Toàn bộ tài liệu đã được đóng gói an toàn vào file nén (.zip).</p>
+            <p id="result-summary">Toàn bộ tài liệu (bản lẻ và bản đóng quyển) đã được nén an toàn vào file .zip.</p>
             <a href="#" id="download-link" class="btn-success-download">📥 Tải Trọn Bộ Về Máy (.zip)</a>
         </div>
     </div>
 
     <script>
-        // ĐƯỜNG DẪN ĐẾN SERVER BACKEND CỦA CẬU
         const RENDER_API_URL = "https://a-l5ce.onrender.com"; 
 
         function switchTab(type) {
@@ -479,7 +478,6 @@
                 let excelInputId = type === 'xe-tai' ? 'excel-xt' : 'excel-gao';
                 let wordInputId = type === 'xe-tai' ? 'word-xt' : 'word-gao';
                 
-                // Set prefix chuẩn 1 (gạo) và 2 (xe tải)
                 let defaultExcel = type === 'xe-tai' ? '2_thong_tin.xlsx' : '1_thong_tin_hop_dong_gao.xlsx';
                 let defaultWord = type === 'xe-tai' ? '2_mau_hop_dong_xe_tai.docx' : '1_mau_hop_dong_gao.docx';
                 
@@ -498,7 +496,7 @@
             } 
             else if (type === 'hdnt-gao') {
                 endpoint = '/api/hop-dong-nguyen-tac-gao';
-                zipName = '3_KetQua_HDNT_Gao.zip'; // Cập nhật tên ZIP chuẩn
+                zipName = '3_KetQua_HDNT_Gao.zip'; 
 
                 let excelFile = document.getElementById('excel-hdnt').files[0];
                 let hdntFile = document.getElementById('word-hdnt').files[0];
@@ -523,8 +521,8 @@
                 if(progress < 85) {
                     progress += 5;
                     pBar.style.width = progress + '%';
-                    if(progress === 60) ghiLog("⚙️ Hệ thống đang nhào nặn dữ liệu và đóng quyển văn bản...");
-                    if(progress === 85) ghiLog("🗜️ Đang nén file Zip kết quả...");
+                    if(progress === 60) ghiLog("⚙️ Đang gen file lẻ và thực hiện Đóng Quyển (Merge Docs)...");
+                    if(progress === 85) ghiLog("🗜️ Đang nén các thư mục con thành file Zip...");
                 }
             }, 800);
 
