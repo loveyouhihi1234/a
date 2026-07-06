@@ -285,6 +285,7 @@
             <div class="tab-btn" onclick="switchTab('hdnt-gao')">📑 HĐ Nguyên Tắc Gạo (3)</div>
         </div>
 
+        <!-- TAB 1: GẠO -->
         <div id="tab-gao" class="tab-content active">
             <div class="download-section">
                 <h3>📥 Kho File Mẫu Hợp Đồng Gạo</h3>
@@ -317,10 +318,11 @@
             <button class="btn-run" onclick="chayDayChuyen('gao')" style="background: linear-gradient(to right, #f5af19, #f12711); box-shadow: 0 4px 15px rgba(245, 175, 25, 0.2);">🌾 Bắt Đầu Xử Lý Hợp Đồng Gạo</button>
         </div>
 
+        <!-- TAB 2: XE TẢI -->
         <div id="tab-xe-tai" class="tab-content">
             <div class="download-section">
                 <h3>📥 Kho File Mẫu Hợp Đồng Xe Tải</h3>
-                <a href="2_thong_tin.xlsx" download class="btn-download">📊 Tải file dữ liệu (2)</a>
+                <a href="2_thong_tin_hop_dong_xe_tai.xlsx" download class="btn-download">📊 Tải file dữ liệu (2)</a>
                 <a href="2_mau_hop_dong_xe_tai.docx" download class="btn-download">📝 Tải mẫu Word (2)</a>
             </div>
 
@@ -349,6 +351,7 @@
             <button class="btn-run" onclick="chayDayChuyen('xe-tai')">🚀 Bắt Đầu Xử Lý Hợp Đồng Xe Tải</button>
         </div>
 
+        <!-- TAB 3: HỢP ĐỒNG NGUYÊN TẮC GẠO -->
         <div id="tab-hdnt-gao" class="tab-content">
             <div class="download-section">
                 <h3>📥 Kho File Mẫu HĐ Nguyên Tắc & Biên Bản</h3>
@@ -402,7 +405,7 @@
 
         <div class="result-box" id="result-box">
             <h2 style="color: var(--success); margin-top: 0;">🎉 Xuất Bản Thành Công Rực Rỡ!</h2>
-            <p id="result-summary">Toàn bộ tài liệu (bản lẻ và bản đóng quyển) đã được nén an toàn vào file .zip.</p>
+            <p id="result-summary">Toàn bộ tài liệu (bản lẻ và bản đóng quyển Master) đã được nén an toàn vào file .zip.</p>
             <a href="#" id="download-link" class="btn-success-download">📥 Tải Trọn Bộ Về Máy (.zip)</a>
         </div>
     </div>
@@ -443,6 +446,7 @@
             const logBox = document.getElementById('log-container');
             const time = new Date().toLocaleTimeString();
             logBox.innerHTML += `<div class="${isMain ? 'status-text' : 'log-line'}">[${time}] ${text}</div>`;
+            logBox.scrollTop = logBox.scrollHeight;
         }
 
         async function fetchFileMacDinh(url, fallbackName) {
@@ -452,7 +456,7 @@
                 const blob = await response.blob();
                 return new File([blob], fallbackName);
             } catch (error) {
-                alert(`❌ Lỗi: Không tìm thấy file mẫu mặc định [${url}]!`);
+                alert(`❌ Lỗi: Không tìm thấy file mẫu mặc định [${url}]! Mọi thứ phải nằm chung 1 thư mục với file HTML nhé.`);
                 return null;
             }
         }
@@ -478,7 +482,7 @@
                 let excelInputId = type === 'xe-tai' ? 'excel-xt' : 'excel-gao';
                 let wordInputId = type === 'xe-tai' ? 'word-xt' : 'word-gao';
                 
-                let defaultExcel = type === 'xe-tai' ? '2_thong_tin.xlsx' : '1_thong_tin_hop_dong_gao.xlsx';
+                let defaultExcel = type === 'xe-tai' ? '2_thong_tin_hop_dong_xe_tai.xlsx' : '1_thong_tin_hop_dong_gao.xlsx';
                 let defaultWord = type === 'xe-tai' ? '2_mau_hop_dong_xe_tai.docx' : '1_mau_hop_dong_gao.docx';
                 
                 endpoint = type === 'xe-tai' ? '/api/hop-dong-xe-tai' : '/api/hop-dong-gao';
@@ -513,16 +517,17 @@
                 formData.append('bbgn_template', bbgnFile);
             }
 
-            pBar.style.width = '40%';
-            ghiLog(`🚀 Đang truyền tín hiệu đến Python Backend...`, true);
+            pBar.style.width = '30%';
+            ghiLog(`🚀 Đang truyền tín hiệu nhị phân đến máy chủ Render...`, true);
 
-            let progress = 40;
+            let progress = 30;
             let timer = setInterval(() => {
                 if(progress < 85) {
-                    progress += 5;
+                    progress += 2;
                     pBar.style.width = progress + '%';
-                    if(progress === 60) ghiLog("⚙️ Đang gen file lẻ và thực hiện Đóng Quyển (Merge Docs)...");
-                    if(progress === 85) ghiLog("🗜️ Đang nén các thư mục con thành file Zip...");
+                    if(progress === 40) ghiLog("⚙️ Python đang phân tích Dataframe...");
+                    if(progress === 60) ghiLog("📝 Đang tiến hành thuật toán OXML vẽ lưới bảng và gộp file Master (Composer)...");
+                    if(progress === 80) ghiLog("🗜️ Đang đóng gói toàn bộ thư mục thành file Zip...");
                 }
             }, 800);
 
@@ -537,7 +542,7 @@
                 if(!response.ok) throw new Error("Lỗi mạng từ Server.");
 
                 pBar.style.width = '95%';
-                ghiLog("📦 Đã nhận được dữ liệu! Đang kết xuất...", true);
+                ghiLog("📦 Đã nhận được dữ liệu trả về! Đang kết xuất Frontend...", true);
 
                 const blob = await response.blob();
                 const downloadUrl = window.URL.createObjectURL(blob);
@@ -547,16 +552,16 @@
                 dlLink.download = zipName;
 
                 pBar.style.width = '100%';
-                ghiLog("✅ Hoàn thành 100%! Toàn bộ tài liệu đã sẵn sàng.", true);
+                ghiLog("✅ BÙM! Dây chuyền đã nhả ra bộ tài liệu hoàn mỹ cho cậu.", true);
                 
                 resultBox.style.display = 'block';
-                document.getElementById('result-summary').innerText = `Hệ thống xử lý hoàn tất! Bấm nút bên dưới để tải [${zipName}].`;
+                document.getElementById('result-summary').innerText = `Thành công rực rỡ! Bấm nút bên dưới để rinh [${zipName}] về máy nhé.`;
 
             } catch (error) {
                 clearInterval(timer);
                 pBar.style.width = '100%';
                 pBar.style.backgroundColor = '#ef4444';
-                ghiLog("❌ LỖI: Không phản hồi từ bộ não Python!", true);
+                ghiLog("❌ LỖI: API Backend không phản hồi!", true);
                 console.error(error);
             }
         }
