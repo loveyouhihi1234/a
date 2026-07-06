@@ -30,7 +30,7 @@ app.add_middleware(
 )
 
 # =====================================================================
-# CÁC HÀM XỬ LÝ DỮ LIỆU CHUNG
+# CÁC HÀM XỬ LÝ DỮ LIỆU & DOCX CHUNG
 # =====================================================================
 def xu_ly_cmt_cccd(val):
     if pd.isna(val) or str(val).strip() == "" or str(val).lower() == 'nan': return ""
@@ -99,6 +99,16 @@ def autofit_to_window(table):
     tblW.set(qn('w:w'), '5000')
     tblW.set(qn('w:type'), 'pct')
 
+def merge_docs(file_list, output_path):
+    if not file_list: return
+    master_doc = Document(file_list[0])
+    composer = Composer(master_doc)
+    for file_path in file_list[1:]:
+        doc_to_append = Document(file_path)
+        master_doc.add_page_break()
+        composer.append(doc_to_append)
+    composer.save(output_path)
+
 def tao_file_zip(thu_muc_nguon, ten_file_zip_ao):
     memory_file = io.BytesIO()
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
@@ -145,6 +155,10 @@ async def tao_hop_dong_gao(excel_file: UploadFile = File(...), word_template: Up
     nhom_hop_dong = df.groupby('sohd')
 
     with tempfile.TemporaryDirectory() as temp_dir:
+        folder_chitiet = os.path.join(temp_dir, 'ChiTiet_HopDongGao')
+        os.makedirs(folder_chitiet, exist_ok=True)
+        danh_sach_file = []
+
         for sohd, group in nhom_hop_dong:
             doc = DocxTemplate(io.BytesIO(word_data))
             
@@ -228,8 +242,14 @@ async def tao_hop_dong_gao(excel_file: UploadFile = File(...), word_template: Up
             }
 
             file_name = f"1_{so_hd_str}. Hop_dong_gao_{ngay}{thang}.docx"
+            full_path = os.path.join(folder_chitiet, file_name)
             doc.render(context)
-            doc.save(os.path.join(temp_dir, file_name))
+            doc.save(full_path)
+            danh_sach_file.append(full_path)
+
+        # Merge tất cả file gạo lại thành 1 quyển chung
+        if danh_sach_file:
+            merge_docs(danh_sach_file, os.path.join(temp_dir, '1_Tong_Hop_Hop_Dong_Gao.docx'))
 
         return tao_file_zip(temp_dir, "1_KetQua_HopDongGao.zip")
 
@@ -277,6 +297,10 @@ async def tao_hop_dong_xe_tai(excel_file: UploadFile = File(...), word_template:
     df.columns = df_raw.iloc[header_idx].astype(str).str.strip().str.lower()
 
     with tempfile.TemporaryDirectory() as temp_dir:
+        folder_chitiet = os.path.join(temp_dir, 'ChiTiet_HopDongXeTai')
+        os.makedirs(folder_chitiet, exist_ok=True)
+        danh_sach_file = []
+
         for index, row in df.iterrows():
             bks_raw = str(lay_gia_tri(row, ['bks', 'biển'])).strip()
             daidien_raw = str(lay_gia_tri(row, ['daidien', 'đại diện', 'tên']))
@@ -334,8 +358,14 @@ async def tao_hop_dong_xe_tai(excel_file: UploadFile = File(...), word_template:
             }
 
             file_name = f"2_{so_str}_{bks_raw}.docx"
+            full_path = os.path.join(folder_chitiet, file_name)
             doc.render(context)
-            doc.save(os.path.join(temp_dir, file_name))
+            doc.save(full_path)
+            danh_sach_file.append(full_path)
+
+        # Merge tất cả file xe tải lại thành 1 quyển chung
+        if danh_sach_file:
+            merge_docs(danh_sach_file, os.path.join(temp_dir, '2_Tong_Hop_Hop_Dong_Xe_Tai.docx'))
 
         return tao_file_zip(temp_dir, "2_KetQua_HopDongXeTai.zip")
 
@@ -354,16 +384,6 @@ def style_cell_api3(cell, text, align_horz, is_bold=False):
             r._element.rPr.rFonts.set(qn('w:eastAsia'), 'Times New Roman') 
             r.font.size = Pt(12)
             r.font.bold = is_bold
-
-def merge_docs(file_list, output_path):
-    if not file_list: return
-    master_doc = Document(file_list[0])
-    composer = Composer(master_doc)
-    for file_path in file_list[1:]:
-        doc_to_append = Document(file_path)
-        master_doc.add_page_break()
-        composer.append(doc_to_append)
-    composer.save(output_path)
 
 @app.post("/api/hop-dong-nguyen-tac-gao")
 async def tao_hop_dong_nguyen_tac(
@@ -504,13 +524,13 @@ async def tao_hop_dong_nguyen_tac(
 
         # PHẦN 3: ĐÓNG QUYỂN
         if danh_sach_hdnt:
-            merge_docs(danh_sach_hdnt, os.path.join(temp_dir, '3_Tong_Hop_Hop_Dong_Nguyen_Tac.docx'))
+            merge_docs(danh_sach_hdnt, os.path.join(temp_dir, '3_1_Tong_Hop_Hop_Dong_Nguyen_Tac.docx'))
         if danh_sach_bbgn:
-            merge_docs(danh_sach_bbgn, os.path.join(temp_dir, '3_Tong_Hop_Bien_Ban_Giao_Nhan.docx'))
+            merge_docs(danh_sach_bbgn, os.path.join(temp_dir, '3_2_Tong_Hop_Bien_Ban_Giao_Nhan.docx'))
         
         danh_sach_tong_hop = danh_sach_hdnt + danh_sach_bbgn
         if danh_sach_tong_hop:
-            merge_docs(danh_sach_tong_hop, os.path.join(temp_dir, '3_Tong_Hop_Tat_Ca_HDNT_va_BBGN.docx'))
+            merge_docs(danh_sach_tong_hop, os.path.join(temp_dir, '3_3_Tong_Hop_Tat_Ca_HDNT_va_BBGN.docx'))
 
         # Dọn 2 file mẫu vừa lưu tạm
         os.remove(hdnt_path)
