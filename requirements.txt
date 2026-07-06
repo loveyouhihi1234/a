@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-python-multipart
-pandas
-docxtpl
-python-docx
-openpyxl
-jinja2
-docxcompose
