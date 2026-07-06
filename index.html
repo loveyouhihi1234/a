@@ -280,48 +280,16 @@
         </header>
 
         <div class="tabs">
-            <div class="tab-btn active" onclick="switchTab('xe-tai')">🚚 Hợp Đồng Xe Tải</div>
-            <div class="tab-btn" onclick="switchTab('gao')">🌾 Hợp Đồng Gạo</div>
-            <div class="tab-btn" onclick="switchTab('hdnt-gao')">📑 HĐ Nguyên Tắc Gạo</div>
-        </div>
-
-        <div id="tab-xe-tai" class="tab-content active">
-            <div class="download-section">
-                <h3>📥 Kho File Mẫu Cho Hệ Thống</h3>
-                <a href="thong_tin.xlsx" download class="btn-download">📊 Tải file dữ liệu</a>
-                <a href="mau_hop_dong_xe_tai.docx" download class="btn-download">📝 Tải mẫu Word</a>
-            </div>
-
-            <div class="upload-grid">
-                <div class="upload-box">
-                    <div class="upload-card" onclick="document.getElementById('excel-xt').click()">
-                        <label>
-                            <span class="file-icon">📊</span>
-                            <strong>File Excel Thông Tin</strong>
-                            <span class="file-name" id="name-excel-xt">Chưa chọn file (Sẽ dùng file mẫu)</span>
-                            <input type="file" id="excel-xt" accept=".xlsx, .xls" onchange="updateFileName('excel-xt', 'name-excel-xt')">
-                        </label>
-                    </div>
-                </div>
-                <div class="upload-box">
-                    <div class="upload-card" onclick="document.getElementById('word-xt').click()">
-                        <label>
-                            <span class="file-icon">📝</span>
-                            <strong>File Mẫu Word (.docx)</strong>
-                            <span class="file-name" id="name-word-xt">Chưa chọn file (Sẽ dùng file mẫu)</span>
-                            <input type="file" id="word-xt" accept=".docx" onchange="updateFileName('word-xt', 'name-word-xt')">
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <button class="btn-run" onclick="chayDayChuyen('xe-tai')">🚀 Bắt Đầu Xử Lý Hợp Đồng Xe Tải</button>
+            <div class="tab-btn" onclick="switchTab('gao')">🌾 Hợp Đồng Gạo (1)</div>
+            <div class="tab-btn active" onclick="switchTab('xe-tai')">🚚 Hợp Đồng Xe Tải (2)</div>
+            <div class="tab-btn" onclick="switchTab('hdnt-gao')">📑 HĐ Nguyên Tắc Gạo (3)</div>
         </div>
 
         <div id="tab-gao" class="tab-content">
             <div class="download-section">
                 <h3>📥 Kho File Mẫu Hợp Đồng Gạo</h3>
-                <a href="thong_tin_hop_dong_gao.xlsx" download class="btn-download">📊 Tải file dữ liệu gạo</a>
-                <a href="mau_hop_dong_gao.docx" download class="btn-download">📝 Tải mẫu Word gạo</a>
+                <a href="1_thong_tin_hop_dong_gao.xlsx" download class="btn-download">📊 Tải file dữ liệu gạo (1)</a>
+                <a href="1_mau_hop_dong_gao.docx" download class="btn-download">📝 Tải mẫu Word gạo (1)</a>
             </div>
 
             <div class="upload-grid">
@@ -349,12 +317,44 @@
             <button class="btn-run" onclick="chayDayChuyen('gao')" style="background: linear-gradient(to right, #f5af19, #f12711); box-shadow: 0 4px 15px rgba(245, 175, 25, 0.2);">🌾 Bắt Đầu Xử Lý Hợp Đồng Gạo</button>
         </div>
 
+        <div id="tab-xe-tai" class="tab-content active">
+            <div class="download-section">
+                <h3>📥 Kho File Mẫu Hợp Đồng Xe Tải</h3>
+                <a href="2_thong_tin.xlsx" download class="btn-download">📊 Tải file dữ liệu (2)</a>
+                <a href="2_mau_hop_dong_xe_tai.docx" download class="btn-download">📝 Tải mẫu Word (2)</a>
+            </div>
+
+            <div class="upload-grid">
+                <div class="upload-box">
+                    <div class="upload-card" onclick="document.getElementById('excel-xt').click()">
+                        <label>
+                            <span class="file-icon">📊</span>
+                            <strong>File Excel Thông Tin</strong>
+                            <span class="file-name" id="name-excel-xt">Chưa chọn file (Sẽ dùng file mẫu)</span>
+                            <input type="file" id="excel-xt" accept=".xlsx, .xls" onchange="updateFileName('excel-xt', 'name-excel-xt')">
+                        </label>
+                    </div>
+                </div>
+                <div class="upload-box">
+                    <div class="upload-card" onclick="document.getElementById('word-xt').click()">
+                        <label>
+                            <span class="file-icon">📝</span>
+                            <strong>File Mẫu Word (.docx)</strong>
+                            <span class="file-name" id="name-word-xt">Chưa chọn file (Sẽ dùng file mẫu)</span>
+                            <input type="file" id="word-xt" accept=".docx" onchange="updateFileName('word-xt', 'name-word-xt')">
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-run" onclick="chayDayChuyen('xe-tai')">🚀 Bắt Đầu Xử Lý Hợp Đồng Xe Tải</button>
+        </div>
+
         <div id="tab-hdnt-gao" class="tab-content">
             <div class="download-section">
                 <h3>📥 Kho File Mẫu HĐ Nguyên Tắc & Biên Bản</h3>
-                <a href="3_danh_sach_hoa_don_gao.xlsx" download class="btn-download">📊 Excel Dữ Liệu</a>
-                <a href="3_mau_hopdongnguyentac.docx" download class="btn-download">📝 Mẫu HĐNT</a>
-                <a href="3_mau_bienbangiaonhan.docx" download class="btn-download">📝 Mẫu BBGN</a>
+                <a href="3_danh_sach_hoa_don_gao.xlsx" download class="btn-download">📊 Excel Dữ Liệu (3)</a>
+                <a href="3_mau_hopdongnguyentac.docx" download class="btn-download">📝 Mẫu HĐNT (3)</a>
+                <a href="3_mau_bienbangiaonhan.docx" download class="btn-download">📝 Mẫu BBGN (3)</a>
             </div>
 
             <div class="upload-grid">
@@ -408,19 +408,19 @@
     </div>
 
     <script>
-        // ĐƯỜNG DẪN ĐẾN SERVER BACKEND (Thay đổi nếu cần)
+        // ĐƯỜNG DẪN ĐẾN SERVER BACKEND CỦA CẬU
         const RENDER_API_URL = "https://a-l5ce.onrender.com"; 
 
         function switchTab(type) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            if(type === 'xe-tai') {
+            if(type === 'gao') {
                 document.querySelectorAll('.tab-btn')[0].classList.add('active');
-                document.getElementById('tab-xe-tai').classList.add('active');
-            } else if (type === 'gao') {
-                document.querySelectorAll('.tab-btn')[1].classList.add('active');
                 document.getElementById('tab-gao').classList.add('active');
+            } else if (type === 'xe-tai') {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('tab-xe-tai').classList.add('active');
             } else {
                 document.querySelectorAll('.tab-btn')[2].classList.add('active');
                 document.getElementById('tab-hdnt-gao').classList.add('active');
@@ -475,14 +475,16 @@
 
             ghiLog("⚙️ Bắt đầu quét kiểm tra cấu hình nạp file...", true);
 
-            if (type === 'xe-tai' || type === 'gao') {
+            if (type === 'gao' || type === 'xe-tai') {
                 let excelInputId = type === 'xe-tai' ? 'excel-xt' : 'excel-gao';
                 let wordInputId = type === 'xe-tai' ? 'word-xt' : 'word-gao';
-                let defaultExcel = type === 'xe-tai' ? 'thong_tin.xlsx' : 'thong_tin_hop_dong_gao.xlsx';
-                let defaultWord = type === 'xe-tai' ? 'mau_hop_dong_xe_tai.docx' : 'mau_hop_dong_gao.docx';
+                
+                // Set prefix chuẩn 1 (gạo) và 2 (xe tải)
+                let defaultExcel = type === 'xe-tai' ? '2_thong_tin.xlsx' : '1_thong_tin_hop_dong_gao.xlsx';
+                let defaultWord = type === 'xe-tai' ? '2_mau_hop_dong_xe_tai.docx' : '1_mau_hop_dong_gao.docx';
                 
                 endpoint = type === 'xe-tai' ? '/api/hop-dong-xe-tai' : '/api/hop-dong-gao';
-                zipName = type === 'xe-tai' ? 'KetQua_HopDongXeTai.zip' : 'KetQua_HopDongGao.zip';
+                zipName = type === 'xe-tai' ? '2_KetQua_HopDongXeTai.zip' : '1_KetQua_HopDongGao.zip';
 
                 let excelFile = document.getElementById(excelInputId).files[0];
                 let wordFile = document.getElementById(wordInputId).files[0];
@@ -496,7 +498,7 @@
             } 
             else if (type === 'hdnt-gao') {
                 endpoint = '/api/hop-dong-nguyen-tac-gao';
-                zipName = 'KetQua_HDNT_Gao.zip';
+                zipName = '3_KetQua_HDNT_Gao.zip'; // Cập nhật tên ZIP chuẩn
 
                 let excelFile = document.getElementById('excel-hdnt').files[0];
                 let hdntFile = document.getElementById('word-hdnt').files[0];
