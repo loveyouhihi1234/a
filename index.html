@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý & Tự động hóa Hợp đồng</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --primary: #38bdf8;
+            --primary-hover: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: block;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            color: var(--primary);
+            font-size: 28pt;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 12pt;
+        }
+
+        /* Thanh điều hướng Tab */
+        .tabs {
+            display: flex;
+            width: 100%;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .tab-btn {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            color: var(--text-muted);
+            font-weight: bold;
+            font-size: 12pt;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+            background-color: rgba(56, 189, 248, 0.05);
+        }
+
+        /* Khung nội dung */
+        .tab-content {
+            display: none;
+            background-color: var(--card-dark);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Khối Tải mẫu xuống */
+        .download-section {
+            background-color: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px dashed var(--border);
+            text-align: center;
+        }
+
+        .download-section h3 {
+            margin-top: 0;
+            color: var(--text-main);
+            font-size: 13pt;
+        }
+
+        .btn-download {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px 10px;
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 11pt;
+            transition: all 0.3s;
+        }
+
+        .btn-download:hover {
+            background-color: var(--primary);
+            color: var(--bg-dark);
+        }
+
+        /* Khối Tải file dữ liệu lên */
+        .upload-grid {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .upload-box {
+            flex: 1;
+            box-sizing: border-box;
+        }
+
+        .upload-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 25px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            height: 100%;
+        }
+
+        .upload-card:hover {
+            border-color: var(--primary);
+        }
+
+        .upload-card label {
+            cursor: pointer;
+            display: block;
+            height: 100%;
+        }
+
+        .upload-card input[type="file"] {
+            display: none;
+        }
+
+        .file-icon {
+            font-size: 24pt;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .file-name {
+            display: block;
+            margin-top: 8px;
+            font-size: 10pt;
+            color: var(--warning);
+            word-break: break-all;
+        }
+
+        /* Nút kích hoạt dây chuyền */
+        .btn-run {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, var(--primary), #3a7bd5);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14pt;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .btn-run:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        /* Monitor hiển thị tiến trình chạy */
+        .monitor-box {
+            margin-top: 30px;
+            background-color: #090d16;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid var(--primary);
+            display: none;
+        }
+
+        .progress-bar-container {
+            background-color: var(--border);
+            height: 6px;
+            border-radius: 3px;
+            width: 100%;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background-color: var(--primary);
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .status-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 11pt;
+            color: var(--text-main);
+            margin: 5px 0;
+        }
+
+        .log-line {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 10pt;
+            color: var(--text-muted);
+            margin: 3px 0;
+            padding-left: 10px;
+        }
+
+        /* Khối Kết quả tải về */
+        .result-box {
+            margin-top: 30px;
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        .btn-success-download {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: var(--success);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12pt;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);
+            transition: 0.3s;
+        }
+
+        .btn-success-download:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Hệ Thống Xuất Hợp Đồng Tự Động</h1>
+            <p>Giải pháp tự động hóa văn phòng khối lượng lớn trên đám mây</p>
+        </header>
+
+        <div class="tabs">
+            <div class="tab-btn active" onclick="switchTab('gao')">🌾 Hợp Đồng Gạo (1)</div>
+            <div class="tab-btn" onclick="switchTab('xe-tai')">🚚 Hợp Đồng Xe Tải (2)</div>
+            <div class="tab-btn" onclick="switchTab('hdnt-gao')">📑 HĐ Nguyên Tắc Gạo (3)</div>
+        </div>
+
+        <!-- TAB 1: GẠO -->
+        <div id="tab-gao" class="tab-content active">
+            <div class="download-section">
+                <h3>📥 Kho File Mẫu Hợp Đồng Gạo</h3>
+                <a href="1_thong_tin_hop_dong_gao.xlsx" download class="btn-download">📊 Tải file dữ liệu gạo (1)</a>
+                <a href="1_mau_hop_dong_gao.docx" download class="btn-download">📝 Tải mẫu Word gạo (1)</a>
+            </div>
+
+            <div class="upload-grid">
+                <div class="upload-box">
+                    <div class="upload-card" onclick="document.getElementById('excel-gao').click()">
+                        <label>
+                            <span class="file-icon">📊</span>
+                            <strong>File Excel Dữ Liệu Gạo</strong>
+                            <span class="file-name" id="name-excel-gao">Chưa chọn file</span>
+                            <input type="file" id="excel-gao" accept=".xlsx, .xls" onchange="updateFileName('excel-gao', 'name-excel-gao')">
+                        </label>
+                    </div>
+                </div>
+                <div class="upload-box">
+                    <div class="upload-card" onclick="document.getElementById('word-gao').click()">
+                        <label>
+                            <span class="file-icon">📝</span>
+                            <strong>File Mẫu Word Gạo</strong>
+                            <span class="file-name" id="name-word-gao">Chưa chọn file</span>
+                            <input type="file" id="word-gao" accept=".docx" onchange="updateFileName('word-gao', 'name-word-gao')">
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-run" onclick="chayDayChuyen('gao')" style="background: linear-gradient(to right, #f5af19, #f12711); box-shadow: 0 4px 15px rgba(245, 175, 25, 0.2);">🌾 Bắt Đầu Xử Lý Hợp Đồng Gạo</button>
+        </div>
+
+        <!-- TAB 2: XE TẢI -->
+        <div id="tab-xe-tai" class="tab-content">
+            <div class="download-section">
+                <h3>📥 Kho File Mẫu Hợp Đồng Xe Tải</h3>
+                <a href="2_thong_tin_hop_dong_xe_tai.xlsx" download class="btn-download">📊 Tải file dữ liệu (2)</a>
+                <a href="2_mau_hop_dong_xe_tai.docx" download class="btn-download">📝 Tải mẫu Word (2)</a>
+            </div>
+
+            <div class="upload-grid">
+                <div class="upload-box">
+                    <div class="upload-card" onclick="document.getElementById('excel-xt').click()">
+                        <label>
+                            <span class="file-icon">📊</span>
+                            <strong>File Excel Thông Tin</strong>
+                            <span class="file-name" id="name-excel-xt">Chưa chọn file</span>
+                            <input type="file" id="excel-xt" accept=".xlsx, .xls" onchange="updateFileName('excel-xt', 'name-excel-xt')">
+                        </label>
+                    </div>
+                </div>
+                <div class="upload-box">
+                    <div class="upload-card" onclick="document.getElementById('word-xt').click()">
+                        <label>
+                            <span class="file-icon">📝</span>
+                            <strong>File Mẫu Word (.docx)</strong>
+                            <span class="file-name" id="name-word-xt">Chưa chọn file</span>
+                            <input type="file" id="word-xt" accept=".docx" onchange="updateFileName('word-xt', 'name-word-xt')">
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-run" onclick="chayDayChuyen('xe-tai')">🚀 Bắt Đầu Xử Lý Hợp Đồng Xe Tải</button>
+        </div>
+
+        <!-- TAB 3: HỢP ĐỒNG NGUYÊN TẮC GẠO -->
+        <div id="tab-hdnt-gao" class="tab-content">
+            <div class="download-section">
+                <h3>📥 Kho File Mẫu HĐ Nguyên Tắc & Biên Bản</h3>
+                <a href="3_danh_sach_hoa_don_gao.xlsx" download class="btn-download">📊 Excel Dữ Liệu (3)</a>
+                <a href="3_mau_hopdongnguyentac.docx" download class="btn-download">📝 Mẫu HĐNT (3)</a>
+                <a href="3_mau_bienbangiaonhan.docx" download class="btn-download">📝 Mẫu BBGN (3)</a>
+            </div>
+
+            <div class="upload-grid">
+                <div class="upload-box">
+                    <div class="upload-card" onclick="document.getElementById('excel-hdnt').click()">
+                        <label>
+                            <span class="file-icon">📊</span>
+                            <strong>Excel Dữ Liệu</strong>
+                            <span class="file-name" id="name-excel-hdnt">Chưa chọn file</span>
+                            <input type="file" id="excel-hdnt" accept=".xlsx, .xls" onchange="updateFileName('excel-hdnt', 'name-excel-hdnt')">
+                        </label>
+                    </div>
+                </div>
+                <div class="upload-box">
+                    <div class="upload-card" onclick="document.getElementById('word-hdnt').click()">
+                        <label>
+                            <span class="file-icon">📝</span>
+                            <strong>Mẫu Word HĐNT</strong>
+                            <span class="file-name" id="name-word-hdnt">Chưa chọn file</span>
+                            <input type="file" id="word-hdnt" accept=".docx" onchange="updateFileName('word-hdnt', 'name-word-hdnt')">
+                        </label>
+                    </div>
+                </div>
+                <div class="upload-box">
+                    <div class="upload-card" onclick="document.getElementById('word-bbgn').click()">
+                        <label>
+                            <span class="file-icon">📋</span>
+                            <strong>Mẫu Word BBGN</strong>
+                            <span class="file-name" id="name-word-bbgn">Chưa chọn file</span>
+                            <input type="file" id="word-bbgn" accept=".docx" onchange="updateFileName('word-bbgn', 'name-word-bbgn')">
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-run" onclick="chayDayChuyen('hdnt-gao')" style="background: linear-gradient(to right, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">📑 Xử Lý Hợp Đồng Nguyên Tắc Gạo</button>
+        </div>
+
+        <div class="monitor-box" id="monitor">
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="p-bar"></div>
+            </div>
+            <div class="status-text" id="status-main">Đang chuẩn bị khởi động hệ thống...</div>
+            <div id="log-container"></div>
+        </div>
+
+        <div class="result-box" id="result-box">
+            <h2 style="color: var(--success); margin-top: 0;">🎉 Xuất Bản Thành Công Rực Rỡ!</h2>
+            <p id="result-summary">Toàn bộ tài liệu (bản lẻ và bản đóng quyển Master) đã được nén an toàn vào file .zip.</p>
+            <a href="#" id="download-link" class="btn-success-download">📥 Tải Trọn Bộ Về Máy (.zip)</a>
+        </div>
+    </div>
+
+    <script>
+        const RENDER_API_URL = "https://a-6mz4.onrender.com"; 
+
+        function switchTab(type) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            if(type === 'gao') {
+                document.querySelectorAll('.tab-btn')[0].classList.add('active');
+                document.getElementById('tab-gao').classList.add('active');
+            } else if (type === 'xe-tai') {
+                document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                document.getElementById('tab-xe-tai').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab-btn')[2].classList.add('active');
+                document.getElementById('tab-hdnt-gao').classList.add('active');
+            }
+            document.getElementById('monitor').style.display = 'none';
+            document.getElementById('result-box').style.display = 'none';
+        }
+
+        function updateFileName(inputId, nameId) {
+            const file = document.getElementById(inputId).files[0];
+            if(file) {
+                document.getElementById(nameId).innerText = `✔️ Đã nạp: ${file.name}`;
+                document.getElementById(nameId).style.color = "#10b981";
+            }
+        }
+
+        function ghiLog(text, isMain = false) {
+            if(isMain) {
+                document.getElementById('status-main').innerText = text;
+            }
+            const logBox = document.getElementById('log-container');
+            const time = new Date().toLocaleTimeString();
+            logBox.innerHTML += `<div class="${isMain ? 'status-text' : 'log-line'}">[${time}] ${text}</div>`;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        async function fetchFileMacDinh(url, fallbackName) {
+            try {
+                const response = await fetch(url);
+                if(!response.ok) throw new Error();
+                const blob = await response.blob();
+                return new File([blob], fallbackName);
+            } catch (error) {
+                alert(`❌ Lỗi: Không tìm thấy file mẫu mặc định [${url}]! Mọi thứ phải nằm chung 1 thư mục với file HTML nhé.`);
+                return null;
+            }
+        }
+
+        async function chayDayChuyen(type) {
+            const monitor = document.getElementById('monitor');
+            const pBar = document.getElementById('p-bar');
+            const logContainer = document.getElementById('log-container');
+            const resultBox = document.getElementById('result-box');
+            
+            monitor.style.display = 'block';
+            resultBox.style.display = 'none';
+            pBar.style.width = '0%';
+            logContainer.innerHTML = '';
+
+            const formData = new FormData();
+            let endpoint = '';
+            let zipName = '';
+
+            ghiLog("⚙️ Bắt đầu quét kiểm tra cấu hình nạp file...", true);
+
+            if (type === 'gao' || type === 'xe-tai') {
+                let excelInputId = type === 'xe-tai' ? 'excel-xt' : 'excel-gao';
+                let wordInputId = type === 'xe-tai' ? 'word-xt' : 'word-gao';
+                
+                let defaultExcel = type === 'xe-tai' ? '2_thong_tin_hop_dong_xe_tai.xlsx' : '1_thong_tin_hop_dong_gao.xlsx';
+                let defaultWord = type === 'xe-tai' ? '2_mau_hop_dong_xe_tai.docx' : '1_mau_hop_dong_gao.docx';
+                
+                endpoint = type === 'xe-tai' ? '/api/hop-dong-xe-tai' : '/api/hop-dong-gao';
+                zipName = type === 'xe-tai' ? '2_KetQua_HopDongXeTai.zip' : '1_KetQua_HopDongGao.zip';
+
+                let excelFile = document.getElementById(excelInputId).files[0];
+                let wordFile = document.getElementById(wordInputId).files[0];
+
+                if(!excelFile) excelFile = await fetchFileMacDinh(defaultExcel, defaultExcel);
+                if(!wordFile) wordFile = await fetchFileMacDinh(defaultWord, defaultWord);
+                if(!excelFile || !wordFile) return;
+
+                formData.append('excel_file', excelFile);
+                formData.append('word_template', wordFile);
+            } 
+            else if (type === 'hdnt-gao') {
+                endpoint = '/api/hop-dong-nguyen-tac-gao';
+                zipName = '3_KetQua_HDNT_Gao.zip'; 
+
+                let excelFile = document.getElementById('excel-hdnt').files[0];
+                let hdntFile = document.getElementById('word-hdnt').files[0];
+                let bbgnFile = document.getElementById('word-bbgn').files[0];
+
+                if(!excelFile) excelFile = await fetchFileMacDinh('3_danh_sach_hoa_don_gao.xlsx', '3_danh_sach_hoa_don_gao.xlsx');
+                if(!hdntFile) hdntFile = await fetchFileMacDinh('3_mau_hopdongnguyentac.docx', '3_mau_hopdongnguyentac.docx');
+                if(!bbgnFile) bbgnFile = await fetchFileMacDinh('3_mau_bienbangiaonhan.docx', '3_mau_bienbangiaonhan.docx');
+                
+                if(!excelFile || !hdntFile || !bbgnFile) return;
+
+                formData.append('excel_file', excelFile);
+                formData.append('hdnt_template', hdntFile);
+                formData.append('bbgn_template', bbgnFile);
+            }
+
+            pBar.style.width = '30%';
+            ghiLog(`🚀 Đang truyền tín hiệu nhị phân đến máy chủ Render...`, true);
+
+            let progress = 30;
+            let timer = setInterval(() => {
+                if(progress < 85) {
+                    progress += 2;
+                    pBar.style.width = progress + '%';
+                    if(progress === 40) ghiLog("⚙️ Python đang phân tích Dataframe...");
+                    if(progress === 60) ghiLog("📝 Đang tiến hành thuật toán OXML vẽ lưới bảng và gộp file Master (Composer)...");
+                    if(progress === 80) ghiLog("🗜️ Đang đóng gói toàn bộ thư mục thành file Zip...");
+                }
+            }, 800);
+
+            try {
+                const response = await fetch(`${RENDER_API_URL}${endpoint}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(timer);
+
+                if(!response.ok) throw new Error("Lỗi mạng từ Server.");
+
+                pBar.style.width = '95%';
+                ghiLog("📦 Đã nhận được dữ liệu trả về! Đang kết xuất Frontend...", true);
+
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                
+                const dlLink = document.getElementById('download-link');
+                dlLink.href = downloadUrl;
+                dlLink.download = zipName;
+
+                pBar.style.width = '100%';
+                ghiLog("✅ BÙM! Dây chuyền đã nhả ra bộ tài liệu hoàn mỹ cho cậu.", true);
+                
+                resultBox.style.display = 'block';
+                document.getElementById('result-summary').innerText = `Thành công rực rỡ! Bấm nút bên dưới để rinh [${zipName}] về máy nhé.`;
+
+            } catch (error) {
+                clearInterval(timer);
+                pBar.style.width = '100%';
+                pBar.style.backgroundColor = '#ef4444';
+                ghiLog("❌ LỖI: API Backend không phản hồi!", true);
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
