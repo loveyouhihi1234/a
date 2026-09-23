@@ -81,7 +81,7 @@ def format_number(val):
     try:
         if pd.isna(val) or val == "" or str(val).lower() == 'nan':
             return ""
-        return str(int(float(val)))
+        return f"{float(val):,.0f}".replace(',', '.')
     except ValueError:
         return str(val)
 
